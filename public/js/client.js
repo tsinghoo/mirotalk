@@ -2748,7 +2748,8 @@ async function initEnumerateVideoDevices() {
             await enumerateVideoDevices(stream);
             useVideo = true;
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e.message);
             useVideo = false;
         });
 }
