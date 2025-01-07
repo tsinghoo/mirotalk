@@ -2783,16 +2783,38 @@ async function initEnumerateDevices() {
  */
 async function initEnumerateAudioDevices() {
     if (isEnumerateAudioDevices) return;
-    // allow the audio
-    await navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(async (stream) => {
-            await enumerateAudioDevices(stream);
-            useAudio = true;
-        })
-        .catch(() => {
-            useAudio = false;
+
+    if (isMobile()) {
+        cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.CAMERA, async function (status) {
+            if (status.hasPermission) {
+                // allow the video
+
+                // allow the audio
+                await navigator.mediaDevices
+                    .getUserMedia({ audio: true })
+                    .then(async (stream) => {
+                        await enumerateAudioDevices(stream);
+                        useAudio = true;
+                    })
+                    .catch(() => {
+                        useAudio = false;
+                    });
+            } else {
+                console.log("get camera permission failed");
+            }
         });
+    } else {
+        // allow the audio
+        await navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then(async (stream) => {
+                await enumerateAudioDevices(stream);
+                useAudio = true;
+            })
+            .catch(() => {
+                useAudio = false;
+            });
+    }
 }
 
 /**
@@ -2802,23 +2824,36 @@ async function initEnumerateAudioDevices() {
 async function initEnumerateVideoDevices() {
     if (isEnumerateVideoDevices) return;
 
-    cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.CAMERA, async function (status) {
-        if (status.hasPermission) {
-            // allow the video
-            await navigator.mediaDevices
-                .getUserMedia({ video: true })
-                .then(async (stream) => {
-                    await enumerateVideoDevices(stream);
-                    useVideo = true;
-                })
-                .catch((e) => {
-                    console.log(e.message);
-                    useVideo = false;
-                });
-        } else {
-            console.log("get camera permission failed");
-        }
-    });
+    if (isMobile()) {
+        cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.CAMERA, async function (status) {
+            if (status.hasPermission) {
+                // allow the video
+                await navigator.mediaDevices
+                    .getUserMedia({ video: true })
+                    .then(async (stream) => {
+                        await enumerateVideoDevices(stream);
+                        useVideo = true;
+                    })
+                    .catch((e) => {
+                        console.log(e.message);
+                        useVideo = false;
+                    });
+            } else {
+                console.log("get camera permission failed");
+            }
+        });
+    } else {
+        await navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then(async (stream) => {
+                await enumerateVideoDevices(stream);
+                useVideo = true;
+            })
+            .catch((e) => {
+                console.log(e.message);
+                useVideo = false;
+            });
+    }
 
 
 
