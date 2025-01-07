@@ -1085,8 +1085,12 @@ function countPeerConnections() {
  * Get Started...
  */
 document.addEventListener('DOMContentLoaded', function () {
-    initClientPeer();
+    //initClientPeer();
 });
+
+document.addEventListener("deviceready", function(){
+    initClientPeer();
+}, false);
 
 /**
  * On body load Get started
