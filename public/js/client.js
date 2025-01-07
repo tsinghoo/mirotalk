@@ -2741,17 +2741,27 @@ async function initEnumerateAudioDevices() {
  */
 async function initEnumerateVideoDevices() {
     if (isEnumerateVideoDevices) return;
-    // allow the video
-    await navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(async (stream) => {
-            await enumerateVideoDevices(stream);
-            useVideo = true;
-        })
-        .catch((e) => {
-            console.log(e.message);
-            useVideo = false;
-        });
+
+    cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.CAMERA, async function (status) {
+        if (status.hasPermission) {
+            // allow the video
+            await navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(async (stream) => {
+                    await enumerateVideoDevices(stream);
+                    useVideo = true;
+                })
+                .catch((e) => {
+                    console.log(e.message);
+                    useVideo = false;
+                });
+        } else {
+            console.log("get camera permission failed");
+        }
+    });
+
+
+
 }
 
 /**
@@ -8116,7 +8126,7 @@ function sanitizeHtml(input) {
 function isHtml(str) {
     let a = document.createElement('div');
     a.innerHTML = str;
-    for (let c = a.childNodes, i = c.length; i--; ) {
+    for (let c = a.childNodes, i = c.length; i--;) {
         if (c[i].nodeType == 1) return true;
     }
     return false;
@@ -8130,11 +8140,11 @@ function isHtml(str) {
 function isValidHttpURL(url) {
     const pattern = new RegExp(
         '^(https?:\\/\\/)?' + // protocol
-            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-            '(\\#[-a-z\\d_]*)?$',
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$',
         'i', // fragment locator
     );
     return pattern.test(url);
