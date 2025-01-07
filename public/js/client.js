@@ -1000,6 +1000,54 @@ function getNotify() {
     return notify;
 }
 
+function isMobile() {
+    // 获取用户代理字符串
+    const userAgent = navigator.userAgent;
+
+    // 判断是否包含常见的移动设备关键词
+    const mobileKeywords = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+
+    // 如果匹配到上述关键词，说明是移动设备
+    return mobileKeywords.test(userAgent);
+}
+
+
+function loadJs(sid, jsurl, success, error) {
+    var nodeHead = document.getElementsByTagName("head")[0];
+    var nodeScript = null;
+    if (document.getElementById(sid) == null) {
+        nodeScript = document.createElement("script");
+        nodeScript.setAttribute("type", "text/javascript");
+        nodeScript.setAttribute("src", jsurl);
+        nodeScript.setAttribute("id", sid);
+        nodeScript.onerror = error;
+        if (success != null || error != null) {
+            nodeScript.onload = nodeScript.onreadystatechange = function (a) {
+                console.log("readyState of " + sid + ":" + nodeScript.readyState);
+                if (nodeScript.ready) {
+                    console.log(sid + " ready");
+                    success && success();
+                    return false;
+                }
+                if (
+                    !nodeScript.readyState ||
+                    nodeScript.readyState == "loaded" ||
+                    nodeScript.readyState == "complete"
+                ) {
+                    nodeScript.ready = true;
+                    success && success();
+                }
+            };
+        }
+        nodeHead.appendChild(nodeScript);
+    } else {
+        if (error != null) {
+            error();
+        }
+    }
+}
+
+
 /**
  * Get Peer JWT
  * @returns {mixed} boolean false or token string
@@ -1085,12 +1133,20 @@ function countPeerConnections() {
  * Get Started...
  */
 document.addEventListener('DOMContentLoaded', function () {
-    //initClientPeer();
+    if (isMobile()) {
+        var jsUrl = "../js/cordova/cordova.js";
+        loadJs("cordova", jsUrl);
+
+        document.addEventListener("deviceready", function () {
+            console.log("device ready");
+            initClientPeer();
+        }, false);
+
+    } else {
+        initClientPeer();
+    }
 });
 
-document.addEventListener("deviceready", function(){
-    initClientPeer();
-}, false);
 
 /**
  * On body load Get started
