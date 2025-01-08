@@ -1001,11 +1001,14 @@ function getNotify() {
 }
 
 function isMobile() {
+
+    return false;
     // 获取用户代理字符串
     const userAgent = navigator.userAgent;
 
     // 判断是否包含常见的移动设备关键词
     const mobileKeywords = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+
 
     // 如果匹配到上述关键词，说明是移动设备
     return mobileKeywords.test(userAgent);
